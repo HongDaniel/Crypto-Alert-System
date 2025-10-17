@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+}
+
+group = 'com.cryptoalert'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':common')
+    // Spring 컨텍스트 관련 기능 사용
+    implementation 'org.springframework:spring-context:6.0.9'
+    
+    // RestTemplate을 사용하기 위한 Spring Web 의존성 추가
+    implementation 'org.springframework:spring-web:6.0.9'
+	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.1'
+    implementation 'javax.persistence:javax.persistence-api:2.2'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+
+}
+
+test {
+    useJUnitPlatform()
+}

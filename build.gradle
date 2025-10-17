@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    // io.spring.dependency-management 플러그인을 1.1.0 버전으로 적용합니다.
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.cryptoAlert'
+version = '0.0.1-SNAPSHOT'
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    // 공통 플러그인 및 설정
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:2.7.12"
+        }
+    }
+    
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    dependencies {
+        // 루트에서 정의한 Lombok 및 spring-boot-starter-web 의존성
+        compileOnly 'org.projectlombok:lombok:1.18.28'
+        annotationProcessor 'org.projectlombok:lombok:1.18.28'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+}

@@ -1,0 +1,3 @@
+rootProject.name = 'Crypto-Alert'
+
+include("common", "domain", "service", "api", "infra","frontend")

@@ -1,0 +1,50 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.12'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+
+	// ✅ JWT (JJWT core + security for signing)
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5' // JSON serializer
+
+	// ✅ Jakarta Annotations for @PostConstruct
+	implementation 'org.springframework.boot:spring-boot-starter-mail'  // Spring Boot 메일 스타터
+	implementation 'org.springframework.boot:spring-boot-starter-web'   // Web 기능
+	implementation 'org.springframework:spring-web'                     // RestTemplate을 위한 Web 의존성
+
+	// Spring Security 핵심 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 테스트 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+
+	implementation project(':service')
+	implementation project(':domain')
+	implementation project(':infra')
+	implementation project(':common')
+	
+}
+
+sourceSets {
+	main {
+		java {
+			srcDirs = ["src/main/java"]
+		}
+	}
+}
+
+bootJar {
+	mainClass = "com.cryptoAlert.api.ApiApplication"
+}

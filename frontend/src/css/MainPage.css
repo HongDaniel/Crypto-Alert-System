@@ -1,0 +1,25 @@
+.dashboard-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;   /* 화면 전체를 채우도록! */
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #f7f9fa;
+}
+
+.header {
+  flex: 0 0 72px;       /* 고정 높이 */
+  height: 72px;
+  background: #fff;
+  /* 기존 header 스타일 추가 */
+}
+
+.dashboard-wrapper {
+  flex: 1 1 auto;      /* 남은 공간 모두 Dashboard */
+  min-height: 0;
+  overflow-y: auto;    /* 세로 스크롤만 필요할 때 */
+  overflow-x: hidden;
+  padding-bottom: 72px; /* 아래에 72px 공간 (원하면 margin-bottom으로 바꿔도 됨) */
+  /* padding-top: 0;    // 위쪽엔 마진/패딩 없음 */
+}

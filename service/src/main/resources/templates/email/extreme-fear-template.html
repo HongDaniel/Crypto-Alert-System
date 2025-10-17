@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[Crypto Alert] 패닉셀 금지!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffe6e6;
+            border-radius: 8px;
+        }
+        .title {
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .message {
+            font-size: 18px;
+        }
+        .condition, .time {
+            font-style: italic;
+            color: #666;
+        }
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        /* Gauge chart section */
+        .gauge-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .gauge-wrapper {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border: 10px solid #fff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .gauge-value {
+            font-size: 4rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .cms-main-status {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+        .cms-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 22px;
+            font-size: 1.15rem;
+            color: #6b7280;
+        }
+        .cms-last-updated {
+            color: #6b7280;
+            font-size: 1.05rem;
+            font-weight: 400;
+        }
+        .bottom-message {
+            color: #1f2937;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1.6;
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 6vw;
+            }
+            .gauge-wrapper {
+                width: 150px;
+                height: 150px;
+            }
+            .gauge-value {
+                font-size: 2.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="title">📊 Fear & Greed Index Alert!</h2>
+        
+        <!-- Dynamic gauge chart representation -->
+        <div class="gauge-container">
+            <div class="gauge-wrapper">
+                <div class="gauge-value">[[${index}]]</div>
+            </div>
+            <div class="cms-main-status">[[${classification}]]</div>
+        </div>
+        
+        <div class="cms-info">
+            <span class="cms-last-updated">Last updated: [[${time}]]</span>
+        </div>
+        
+        <div class="bottom-message">
+            <div>패닉셀 금지!</div>
+            <div>HODL! 지금은 절대 팔면 안 돼!</div>
+        </div>
+    </div>
+</body>
+</html>

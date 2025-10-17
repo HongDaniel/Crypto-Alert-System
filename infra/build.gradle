@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':common')
+    implementation project(':domain')
+
+    // Jakarta Persistence API 의존성
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+
+    // 메일 관련 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Lombok 의존성
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Spring Data JPA 의존성
+    api 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // H2 데이터베이스 (필요시 다른 DB로 교체)
+    runtimeOnly 'com.h2database:h2'
+    
+}
+
+test {
+    useJUnitPlatform()
+}

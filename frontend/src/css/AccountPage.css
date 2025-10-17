@@ -1,0 +1,271 @@
+/* Account Page Root Layout - MainPage와 동일한 구조 */
+.account-root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #f7f9fa;
+}
+
+.account-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 72px;
+}
+
+/* 가운데 정렬 레이아웃 */
+.account-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: calc(100vh - 64px);
+  min-height: 520px;
+  background: #f7f9fa;
+  box-sizing: border-box;
+  padding: 20px;
+}
+
+/* 가운데 정렬된 카드 스타일 */
+.service-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(24,40,86,0.04);
+  padding: 34px 28px 24px 28px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 650px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.edit-btn {
+  background: #232744;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.09rem;
+  padding: 13px 20px 12px 20px;
+  border-radius: 7px;
+  border: none;
+  transition: background 0.18s;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+}
+
+.edit-btn:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+  margin-bottom: 5px;
+}
+
+.info-item span {
+  color: #34495e;
+  font-size: 1rem;
+  padding: 8px 0;
+  min-height: 20px;
+}
+
+.info-item span.readonly {
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.info-item span.status-active {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.readonly-note {
+  color: #95a5a6;
+  font-size: 0.8rem;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.info-item input {
+  padding: 12px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+}
+
+.info-item input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.info-item input::placeholder {
+  color: #bdc3c7;
+}
+
+.action-buttons {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #e1e8ed;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.save-btn {
+  background: #232744;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.09rem;
+  padding: 13px 20px 12px 20px;
+  border-radius: 7px;
+  border: none;
+  transition: background 0.18s;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+
+.save-btn:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+.cancel-btn {
+  background: #95a5a6;
+  color: white;
+  font-weight: 700;
+  font-size: 1.09rem;
+  padding: 13px 20px 12px 20px;
+  border-radius: 7px;
+  border: none;
+  transition: background 0.18s;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+
+.cancel-btn:hover {
+  background: #7f8c8d;
+  color: #fff;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.success-message {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border: 1px solid #c3e6cb;
+  font-weight: 500;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  border: 1px solid #f5c6cb;
+  font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .account-center {
+    padding: 10px;
+    height: auto;
+    min-height: calc(100vh - 64px);
+  }
+
+  .service-card {
+    max-width: 100%;
+    padding: 24px 20px 20px 20px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .save-btn,
+  .cancel-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-center {
+    padding: 5px;
+  }
+
+  .service-card {
+    padding: 20px 15px 15px 15px;
+  }
+
+  .card-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .edit-btn {
+    font-size: 1rem;
+    padding: 12px 16px 11px 16px;
+  }
+}

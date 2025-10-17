@@ -1,0 +1,108 @@
+.header {
+  width: 100%;
+  min-width: 100%;
+  height: 72px;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(90, 105, 180, 0.05);
+  /* border-radius: 0 0 22px 22px; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 38px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+
+/* 좌측: 로고 */
+.header-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #6366f1;
+  letter-spacing: 1px;
+  font-family: 'Inter', 'Pretendard', sans-serif;
+  margin-right: 10px;
+}
+
+/* 우측: 버튼들 컨테이너 */
+.header-btn-group {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* 버튼 공통 스타일 */
+.header-btn {
+  background: #fff;
+  color: #232744;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: 1.5px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 23px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(60, 60, 140, 0.04);
+  transition: background 0.15s, color 0.15s, border 0.15s;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* Notifications 버튼은 강조 스타일 */
+.header-btn:first-child {
+  background: #111112;
+  color: #fff;
+  border: none;
+}
+
+.header-btn:active {
+  filter: brightness(0.97);
+}
+
+@media (max-width: 600px) {
+  .header {
+    height: 54px;
+    padding: 0 6vw;
+  }
+  .header-logo {
+    font-size: 1.08rem;
+  }
+  .header-btn {
+    padding: 7px 12px;
+    font-size: 0.96rem;
+  }
+}
+
+/* 사용자 이름 및 로그아웃 버튼 그룹 */
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+/* 사용자 이름 텍스트 */
+.header-username {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #111;
+}
+
+/* 로그아웃 버튼 */
+.header-logout-btn {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.header-logout-btn:hover {
+  background: #e2e2e2;
+  color: #000;
+}

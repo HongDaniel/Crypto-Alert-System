@@ -1,0 +1,229 @@
+:root {
+  --extreme-fear: #059669;     /* 매우 두려움 */
+  --fear: #4ade80;             /* 두려움 */
+  --neutral: #facc15;          /* 중립 */
+  --greed: #fb923c;            /* 탐욕 */
+  --extreme-greed: #ea580c;    /* 매우 탐욕 */
+}
+
+.active-alert-list {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #f9fafb;
+  box-sizing: border-box;
+}
+
+.alert-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.alert-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.execute-alert-btn {
+  background: #059669;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.execute-alert-btn:hover:not(:disabled) {
+  background: #047857;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.execute-alert-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.alert-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.alert-row:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.alert-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.alert-condition {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.alert-condition.above {
+  color: var(--greed);  /* 탐욕 조건 */
+}
+
+.alert-condition.below {
+  color: var(--fear);   /* 두려움 조건 */
+}
+
+.alert-methods {
+  display: flex;
+  gap: 18px;
+}
+
+.alert-methods label {
+  font-size: 0.96rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #374151;
+}
+
+.alert-methods input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #cbd5e1;  /* 기본 체크박스 색 */
+  pointer-events: none;
+}
+
+/* 강제 체크 스타일 */
+.alert-methods input[type="checkbox"]:checked {
+  accent-color: #3b82f6;  /* 체크된 박스는 파란색 */
+}
+
+/* Change 모드일 때만 pointer 활성화 */
+.alert-row.editing .alert-methods input[type="checkbox"] {
+  pointer-events: auto;
+}
+
+.alert-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.alert-actions button {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  background-color: #3b82f6;  /* 파란색 버튼 */
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.alert-actions button:hover {
+  background-color: #2563eb;  /* 호버시 색 변화 */
+}
+
+.alert-actions .delete-btn {
+  background-color: #ef4444;  /* 빨간색 버튼 */
+}
+
+.alert-actions .delete-btn:hover {
+  background-color: #dc2626;  /* 호버시 빨간색 버튼 */
+}
+
+.alert-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.alert-inputs input,
+.alert-inputs select {
+  padding: 10px;
+  border: 1px solid #e1e4ef;
+  border-radius: 7px;
+  width: 100%;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: border 0.3s ease-in-out;
+}
+
+.alert-inputs input:focus,
+.alert-inputs select:focus {
+  border: 1px solid #6366f1;
+  background-color: #f9fafa;
+}
+
+button[type="submit"] {
+  margin-top: 8px;
+  width: 100%;
+  background: #232744;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.09rem;
+  padding: 13px 0;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+button[type="submit"]:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+  .active-alert-list {
+      padding: 16px 5vw 12px 5vw;
+  }
+
+  .alert-header {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+  }
+
+  .execute-alert-btn {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1rem;
+  }
+
+  .alert-row {
+      flex-direction: column;
+      gap: 10px;
+  }
+
+  .alert-methods {
+      flex-direction: column;
+  }
+
+  .alert-methods label {
+      margin-bottom: 8px;
+  }
+
+  .alert-actions {
+      flex-direction: column;
+      gap: 8px;
+  }
+}
