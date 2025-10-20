@@ -21,8 +21,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: danny.jung1223@gmail.com
-    password: nlpp zyvx epvp kccz  # Gmail App Password
+    username: ${MAIL_USERNAME:your-email@gmail.com}
+    password: ${MAIL_PASSWORD:your-app-password}
     protocol: smtp
     smtp:
       auth: true
@@ -32,16 +32,16 @@ spring:
         trust: smtp.gmail.com
 
 solapi:
-  api-key: NCSYDU7LGXZCO670
-  api-secret: LPBBWIRDZWCKNFLJNZ8HQ7OQ1HB2LCKY
-  from: 01099750327
+  api-key: ${SOLAPI_API_KEY:your-api-key}
+  api-secret: ${SOLAPI_API_SECRET:your-api-secret}
+  from: ${SOLAPI_FROM:your-phone-number}
 
 app:
   default-user:
-    email: jungd1223@naver.com
-    phone: 01099750327
-    username: admin
-    password: admin
+    email: ${DEFAULT_USER_EMAIL:admin@example.com}
+    phone: ${DEFAULT_USER_PHONE:01000000000}
+    username: ${DEFAULT_USERNAME:admin}
+    password: ${DEFAULT_PASSWORD:admin}
   default-alert:
     threshold: 70
 
