@@ -99,32 +99,33 @@ function ActiveAlertList({ alerts, fetchAlerts }) {
     }
   };
 
-  // Handle manual alert execution
+  // Handle manual alert execution - 모든 Active Alert 확인
   const handleManualExecute = async () => {
     if (alerts.length === 0) {
       alert('실행할 활성 알림이 없습니다.');
       return;
     }
 
-    // 첫 번째 활성 알림을 사용하여 실행
-    const firstAlert = alerts[0];
-    const payload = {
-      threshold: firstAlert.threshold,
-      alertType: firstAlert.alertType,
-      email: firstAlert.email, // methods.email 대신 email 직접 사용
-      sms: firstAlert.sms      // methods.sms 대신 sms 직접 사용
-    };
-
     setIsExecuting(true);
     
     try {
-      const response = await axios.post('/api/alert/send', payload, {
+      // 모든 Active Alert를 확인하는 API 호출 (payload 없이)
+      const response = await axios.post('/api/alert/send', {}, {
         withCredentials: true
       });
-      alert('알림이 수동으로 실행되었습니다!');
+      
+      // 응답 메시지 표시
+      const message = response.data || '알림이 수동으로 실행되었습니다!';
+      alert(message);
+      
+      // Alert History 새로고침을 위해 부모 컴포넌트에 알림
+      if (typeof fetchAlerts === 'function') {
+        fetchAlerts();
+      }
     } catch (error) {
       console.error('❌ 수동 알림 실행 실패:', error.response?.data || error.message);
-      alert('알림 실행에 실패했습니다.');
+      const errorMessage = error.response?.data || '알림 실행에 실패했습니다.';
+      alert(errorMessage);
     } finally {
       setIsExecuting(false);
     }

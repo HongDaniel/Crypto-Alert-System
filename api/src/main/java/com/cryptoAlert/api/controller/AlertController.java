@@ -13,6 +13,7 @@ import com.cryptoAlert.entity.AlertSetting;
 import com.cryptoAlert.entity.User;
 import com.cryptoAlert.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +38,9 @@ public class AlertController {
     private final CryptoFearIndexService cryptoFearIndexService;
     private final UserRepository userRepository;
 
-    @Operation(summary = "알림 발송", description = "AlertSetting 객체를 받아서 이메일/SMS 알림을 발송합니다")
+    @Operation(summary = "모든 Active Alert 발송", description = "현재 로그인한 사용자의 모든 Active Alert를 확인하고 조건을 만족하는 알림을 발송합니다")
     @PostMapping("/send")
-    public ResponseEntity<String> sendAlert(@RequestBody AlertSetting alertSetting, @AuthenticationPrincipal User user) {
+    public ResponseEntity<String> sendAlert(@AuthenticationPrincipal User user) {
         // 실제 로그인된 사용자 정보를 userRepository에서 조회
         if (user == null) {
             log.warn("User가 null입니다. 기본 사용자를 사용합니다.");
@@ -63,56 +64,55 @@ public class AlertController {
                 return ResponseEntity.status(500).body("User not found");
             }
         }
-        log.info("Alert Send API 호출됨 - User: {}, AlertSetting: {}", user.getEmail(), alertSetting);
+        log.info("Alert Send API 호출됨 - User: {}", user.getEmail());
         
         try {
-            // 중복 체크: 같은 사용자가 동일한 threshold와 alertType을 가진 설정이 있는지 확인
-            Optional<AlertSetting> existingAlert = alertSettingService.findByUserIdAndThresholdAndAlertType(
-                    user.getId(), alertSetting.getThreshold(), alertSetting.getAlertType());
-            
-            AlertSetting savedAlertSetting;
-            if (existingAlert.isPresent()) {
-                log.info("기존 AlertSetting 사용: ID={}", existingAlert.get().getId());
-                savedAlertSetting = existingAlert.get();
-            } else {
-                // AlertSetting을 먼저 저장 (transient 상태 해결)
-                AlertSetting newAlertSetting = new AlertSetting(
-                    user,
-                    alertSetting.getThreshold(),
-                    alertSetting.getAlertType(),
-                    alertSetting.isEmail(),
-                    alertSetting.isSms()
-                );
-                savedAlertSetting = alertSettingService.saveAlertSetting(newAlertSetting);
-                log.info("AlertSetting 저장됨: ID={}", savedAlertSetting.getId());
-            }
-            
-            // 실제 Fear & Greed Index 가져오기
+            // 현재 Fear & Greed Index 가져오기
             CryptoFearIndexResponse fearIndexResponse = cryptoFearIndexService.getCryptoFearIndex();
             int currentIndex = Integer.parseInt(fearIndexResponse.getData().get(0).getValue());
             log.info("현재 Fear & Greed Index: {}", currentIndex);
             
-            // 조건 확인: 현재 인덱스가 설정된 조건을 만족하는지 확인
-            boolean shouldTrigger = false;
-            if (savedAlertSetting.getAlertType().name().equals("ABOVE")) {
-                shouldTrigger = currentIndex >= savedAlertSetting.getThreshold();
-            } else if (savedAlertSetting.getAlertType().name().equals("BELOW")) {
-                shouldTrigger = currentIndex <= savedAlertSetting.getThreshold();
+            // 현재 사용자의 모든 Active Alert 설정 조회
+            List<AlertSetting> userActiveAlerts = alertSettingService.getActiveAlertSettingsByUserId(user.getId());
+            log.info("사용자 {}의 총 {}개의 Active Alert 설정을 찾았습니다", user.getEmail(), userActiveAlerts.size());
+            
+            int triggeredCount = 0;
+            int totalCount = userActiveAlerts.size();
+            
+            for (AlertSetting alertSetting : userActiveAlerts) {
+                try {
+                    // 조건 확인
+                    boolean shouldTrigger = false;
+                    if (alertSetting.getAlertType().name().equals("ABOVE")) {
+                        shouldTrigger = currentIndex >= alertSetting.getThreshold();
+                    } else if (alertSetting.getAlertType().name().equals("BELOW")) {
+                        shouldTrigger = currentIndex <= alertSetting.getThreshold();
+                    }
+                    
+                    if (shouldTrigger) {
+                        log.info("조건 만족 - Alert ID: {}, 임계값: {}, 타입: {}, 현재 인덱스: {}", 
+                                alertSetting.getId(), alertSetting.getThreshold(), 
+                                alertSetting.getAlertType(), currentIndex);
+                        
+                        // 알림 발송
+                        AlertHistory alertHistory = sendAlertWithContent(user, alertSetting, currentIndex);
+                        triggeredCount++;
+                        
+                        log.info("Alert 발송 완료 - ID: {}, 사용자: {}", alertSetting.getId(), user.getEmail());
+                    } else {
+                        log.info("조건 불만족 - Alert ID: {}, 임계값: {}, 타입: {}, 현재 인덱스: {}", 
+                                alertSetting.getId(), alertSetting.getThreshold(), 
+                                alertSetting.getAlertType(), currentIndex);
+                    }
+                } catch (Exception e) {
+                    log.error("Alert ID {} 발송 실패: {}", alertSetting.getId(), e.getMessage(), e);
+                }
             }
             
-            if (!shouldTrigger) {
-                log.info("조건을 만족하지 않음 - 현재 인덱스: {}, 설정된 임계값: {}, 알림 타입: {}", 
-                        currentIndex, savedAlertSetting.getThreshold(), savedAlertSetting.getAlertType());
-                return ResponseEntity.ok("Alert condition not met. Current index: " + currentIndex + 
-                        ", Threshold: " + savedAlertSetting.getThreshold() + 
-                        ", Type: " + savedAlertSetting.getAlertType());
-            }
-            
-            log.info("조건 만족 - 알림 발송 진행");
-            // 알림 발송 및 메시지 내용 저장 (저장된 AlertSetting 사용)
-            AlertHistory alertHistory = sendAlertWithContent(user, savedAlertSetting, currentIndex);
-            
-            return ResponseEntity.ok("Alert sent successfully with index: " + currentIndex);
+            String result = String.format("수동 발송 완료 - 총 %d개 중 %d개 발송됨 (현재 인덱스: %d)", 
+                                        totalCount, triggeredCount, currentIndex);
+            log.info(result);
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("Alert sending failed: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("Alert sending failed: " + e.getMessage());
@@ -145,6 +145,80 @@ public class AlertController {
         } catch (Exception e) {
             log.error("SMS 테스트 실패: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body("SMS test failed: " + e.getMessage());
+        }
+    }
+
+    @Operation(summary = "모든 Active Alert 수동 발송", description = "모든 활성화된 알림 설정을 확인하고 조건을 만족하는 알림을 발송합니다")
+    @PostMapping("/send-all")
+    public ResponseEntity<String> sendAllActiveAlerts() {
+        log.info("모든 Active Alert 수동 발송 API 호출됨");
+        
+        // 기본 사용자 사용 (인증 없이)
+        User user;
+        try {
+            user = userRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("기본 사용자를 찾을 수 없습니다. ID: 1"));
+            log.info("기본 사용자 사용: {}", user.getEmail());
+        } catch (Exception e) {
+            log.error("기본 사용자 조회 실패: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Default user not found");
+        }
+        
+        try {
+            // 현재 Fear & Greed Index 가져오기
+            CryptoFearIndexResponse fearIndexResponse = cryptoFearIndexService.getCryptoFearIndex();
+            int currentIndex = Integer.parseInt(fearIndexResponse.getData().get(0).getValue());
+            log.info("현재 Fear & Greed Index: {}", currentIndex);
+            
+            // 모든 Active Alert 설정 조회
+            List<AlertSetting> activeAlerts = alertSettingService.getActiveAlertSettings();
+            log.info("총 {}개의 Active Alert 설정을 찾았습니다", activeAlerts.size());
+            
+            int triggeredCount = 0;
+            int totalCount = activeAlerts.size();
+            
+            for (AlertSetting alertSetting : activeAlerts) {
+                try {
+                    // 조건 확인
+                    boolean shouldTrigger = false;
+                    if (alertSetting.getAlertType().name().equals("ABOVE")) {
+                        shouldTrigger = currentIndex >= alertSetting.getThreshold();
+                    } else if (alertSetting.getAlertType().name().equals("BELOW")) {
+                        shouldTrigger = currentIndex <= alertSetting.getThreshold();
+                    }
+                    
+                    if (shouldTrigger) {
+                        log.info("조건 만족 - Alert ID: {}, 임계값: {}, 타입: {}, 현재 인덱스: {}", 
+                                alertSetting.getId(), alertSetting.getThreshold(), 
+                                alertSetting.getAlertType(), currentIndex);
+                        
+                        // 해당 AlertSetting의 사용자 정보 조회
+                        User alertUser = userRepository.findById(alertSetting.getUser().getId())
+                            .orElseThrow(() -> new RuntimeException("AlertSetting의 사용자를 찾을 수 없습니다. ID: " + alertSetting.getUser().getId()));
+                        
+                        // 알림 발송
+                        AlertHistory alertHistory = sendAlertWithContent(alertUser, alertSetting, currentIndex);
+                        triggeredCount++;
+                        
+                        log.info("Alert 발송 완료 - ID: {}, 사용자: {}", alertSetting.getId(), alertUser.getEmail());
+                    } else {
+                        log.info("조건 불만족 - Alert ID: {}, 임계값: {}, 타입: {}, 현재 인덱스: {}", 
+                                alertSetting.getId(), alertSetting.getThreshold(), 
+                                alertSetting.getAlertType(), currentIndex);
+                    }
+                } catch (Exception e) {
+                    log.error("Alert ID {} 발송 실패: {}", alertSetting.getId(), e.getMessage(), e);
+                }
+            }
+            
+            String result = String.format("수동 발송 완료 - 총 %d개 중 %d개 발송됨 (현재 인덱스: %d)", 
+                                        totalCount, triggeredCount, currentIndex);
+            log.info(result);
+            return ResponseEntity.ok(result);
+            
+        } catch (Exception e) {
+            log.error("모든 Active Alert 발송 실패: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("Send all alerts failed: " + e.getMessage());
         }
     }
 

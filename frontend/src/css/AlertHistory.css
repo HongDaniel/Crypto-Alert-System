@@ -4,6 +4,8 @@
   box-shadow: 0 2px 14px rgba(100,110,210,0.04);
   padding: 30px 22px 20px 22px;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -22,10 +24,12 @@
   list-style: none;
   padding: 0;
   margin: 0;
-
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;  /* ✅ li들을 가로 방향 가운데 정렬 */
+  box-sizing: border-box;
 }
 
 
@@ -40,7 +44,10 @@
   font-size: 1.07rem;
   color: #222642;
   position: relative;
-  width: 80%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .alert-history li:last-child {

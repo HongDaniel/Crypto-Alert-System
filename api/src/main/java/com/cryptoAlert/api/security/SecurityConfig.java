@@ -56,12 +56,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/api/users/signup",
                         "/api/auth/**",
-                        "/api/alert/send",
                         "/api/alert/test-email", // 간단한 HTML 이메일 테스트
                         "/api/alert/test-sms",   // SMS 테스트
-                        "/api/alerts/**",        // Alert Settings 관련 모든 엔드포인트
                         "/api/sms/**",           // Solapi SMS 관련 모든 엔드포인트
-                        "/api/alert-history/**", // Alert History 관련 엔드포인트
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-resources/**",

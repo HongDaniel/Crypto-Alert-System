@@ -85,4 +85,11 @@ public class AlertSettingService {
     public List<AlertSetting> getActiveAlertSettings() {
         return alertSettingRepository.findActiveAlertSettings();
     }
+
+    /**
+     * 특정 사용자의 활성화된 알림 설정 조회
+     */
+    public List<AlertSetting> getActiveAlertSettingsByUserId(Long userId) {
+        return alertSettingRepository.findByUserId(userId);
+    }
 }

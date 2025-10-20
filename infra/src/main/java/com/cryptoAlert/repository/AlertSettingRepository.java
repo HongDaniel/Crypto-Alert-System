@@ -20,4 +20,8 @@ public interface AlertSettingRepository extends JpaRepository<AlertSetting,Long>
     // 사용자별 중복 체크: 같은 사용자가 동일한 threshold와 alertType을 가진 설정이 있는지 확인
     @Query("SELECT alertSetting FROM AlertSetting alertSetting WHERE alertSetting.user.id = :userId AND alertSetting.threshold = :threshold AND alertSetting.alertType = :alertType")
     Optional<AlertSetting> findByUserIdAndThresholdAndAlertType(@Param("userId") Long userId, @Param("threshold") int threshold, @Param("alertType") AlertType alertType);
+    
+    // 특정 사용자의 모든 알림 설정 조회
+    @Query("SELECT alertSetting FROM AlertSetting alertSetting WHERE alertSetting.user.id = :userId")
+    List<AlertSetting> findByUserId(@Param("userId") Long userId);
 }
