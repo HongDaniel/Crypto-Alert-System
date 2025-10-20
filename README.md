@@ -2,6 +2,41 @@
 
 Spring Boot와 React로 구축된 포괄적인 암호화폐 공포&탐욕 지수 알림 시스템입니다.
 
+## ⚠️ 보안 주의사항
+
+**중요**: 이 프로젝트는 민감한 정보를 환경변수로 관리합니다. 
+
+### 환경변수 설정
+1. `env.example` 파일을 `.env`로 복사하세요
+2. 실제 값으로 환경변수를 설정하세요:
+
+```bash
+# Gmail 설정
+export MAIL_USERNAME="your-email@gmail.com"
+export MAIL_PASSWORD="your-gmail-app-password"
+
+# Solapi SMS 설정
+export SOLAPI_API_KEY="your-solapi-api-key"
+export SOLAPI_API_SECRET="your-solapi-api-secret"
+export SOLAPI_FROM="01000000000"
+
+# 기본 사용자 설정
+export DEFAULT_USER_EMAIL="admin@example.com"
+export DEFAULT_USER_PHONE="01000000000"
+export DEFAULT_USERNAME="admin"
+export DEFAULT_PASSWORD="admin"
+```
+
+### Gmail App Password 생성
+1. Google 계정 → 보안 → 2단계 인증 활성화
+2. 앱 비밀번호 생성
+3. 생성된 비밀번호를 `MAIL_PASSWORD`에 설정
+
+### Solapi API 키 발급
+1. [Solapi](https://solapi.com) 회원가입
+2. API 키 발급
+3. 발급받은 키를 환경변수에 설정
+
 ## 🚀 주요 기능
 
 ### 백엔드 (Spring Boot)
