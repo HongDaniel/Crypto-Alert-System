@@ -24,7 +24,7 @@ pipeline {
                 echo '🔨 프로젝트 빌드 중...'
                 sh '''
                     chmod +x gradlew
-                    ./gradlew clean build -x test
+                    ./gradlew clean build
                 '''
             }
         }
@@ -33,20 +33,6 @@ pipeline {
             steps {
                 echo '🧪 테스트 실행 중...'
                 sh './gradlew test'
-            }
-            post {
-                always {
-                    // 테스트 결과 리포트 생성
-                    publishTestResults testResultsPattern: '**/test-results/test/*.xml'
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: true,
-                        keepAll: true,
-                        reportDir: 'build/reports/tests/test',
-                        reportFiles: 'index.html',
-                        reportName: 'Test Report'
-                    ])
-                }
             }
         }
         
