@@ -9,6 +9,12 @@ pipeline {
         EC2_USER = 'ubuntu'
         EC2_KEY_PATH = '/var/lib/jenkins/.ssh/crypto-alert-key.pem'
         DEPLOY_PATH = '/home/ubuntu/crypto-alert-deploy'
+        
+        // RDS 연결 설정
+        SPRING_PROFILES_ACTIVE = 'prod'
+        DATABASE_URL = 'jdbc:mysql://your-rds-endpoint:3306/crypto_alert?useSSL=true&serverTimezone=UTC'
+        DATABASE_USERNAME = 'your-rds-username'
+        DATABASE_PASSWORD = 'your-rds-password'
     }
     
     stages {

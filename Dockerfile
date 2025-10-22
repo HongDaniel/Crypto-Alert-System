@@ -1,5 +1,5 @@
 # Multi-stage build for Crypto Alert Application
-FROM openjdk:17-jdk-slim as builder
+FROM eclipse-temurin:17-jdk-alpine as builder
 
 # 작업 디렉토리 설정
 WORKDIR /app
@@ -31,15 +31,13 @@ RUN chmod +x gradlew
 RUN ./gradlew build -x test
 
 # Production stage
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-alpine
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
 # 필요한 패키지 설치
-RUN apt-get update && \
-    apt-get install -y curl && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # JAR 파일 복사
 COPY --from=builder /app/api/build/libs/*.jar app.jar
@@ -47,6 +45,9 @@ COPY --from=builder /app/api/build/libs/*.jar app.jar
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
+ENV DATABASE_URL="jdbc:mysql://your-rds-endpoint:3306/crypto_alert?useSSL=true&serverTimezone=UTC"
+ENV DATABASE_USERNAME="your-rds-username"
+ENV DATABASE_PASSWORD="your-rds-password"
 
 # 포트 노출
 EXPOSE 8080
