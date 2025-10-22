@@ -1,9 +1,11 @@
 spring:
+  profiles:
+    active: dev # 기본 프로필을 dev로 설정
   datasource:
-    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/crypto_alert?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DATABASE_USERNAME:root}
-    password: ${DATABASE_PASSWORD:password}
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,11 +13,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  # H2 console은 개발 환경에서만 사용
-  # h2:
-  #   console:
-  #     enabled: true
-  #     path: /h2-console
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher  # Swagger + H2 호환성 확보용
@@ -45,4 +47,8 @@ app:
     password: ${DEFAULT_PASSWORD:admin}
   default-alert:
     threshold: 70
+
+jwt:
+  secret: ${JWT_SECRET:my-super-secret-key-my-super-secret-key}
+  expiration: ${JWT_EXPIRATION:86400000}
 

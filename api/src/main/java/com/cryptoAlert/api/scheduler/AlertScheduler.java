@@ -101,7 +101,7 @@ public class AlertScheduler {
         try {
             // 이메일 발송
             if (alertSetting.isEmail()) {
-                EmailRequest emailRequest = emailService.createEmailRequest(alertSetting, user.getEmail());
+                EmailRequest emailRequest = emailService.createEmailRequest(alertSetting, user.getEmail(), currentIndex);
                 emailService.sendEmail(emailRequest);
                 emailSent = true;
                 emailContent = emailRequest.getBody();

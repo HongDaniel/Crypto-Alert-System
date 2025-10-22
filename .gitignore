@@ -51,3 +51,8 @@ Thumbs.db
 # Sensitive configuration files
 config/secrets.yml
 config/production.yml
+
+# Shell scripts (deployment scripts)
+*.sh
+jenkins-setup.sh
+jenkins-setup-amazon-linux.sh

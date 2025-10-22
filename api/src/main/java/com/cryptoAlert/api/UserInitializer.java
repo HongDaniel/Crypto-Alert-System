@@ -10,35 +10,40 @@ import com.cryptoAlert.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
+@Profile("!prod") // 운영 환경에서는 실행하지 않음
 public class UserInitializer {
 
     private final UserService userService;
     private final AlertSettingService alertSettingService;
     private final UserRepository userRepository;
 
-    @Value("${app.default-user.email:test@example.com}")
+    @Value("${DEFAULT_USER_EMAIL:jungd1223@naver.com}")
     private String defaultEmail;
 
-    @Value("${app.default-user.phone:01000000000}")
+    @Value("${DEFAULT_USER_PHONE:01000000000}")
     private String defaultPhoneNumber;
 
-    @Value("${app.default-user.username:test}")
+    @Value("${DEFAULT_USERNAME:admin}")
     private String defaultUsername;
 
-    @Value("${app.default-user.password:test}")
+    @Value("${DEFAULT_PASSWORD:admin}")
     private String defaultPassword;
 
     @Value("${app.default-alert.threshold:70}")
     private int defaultThreshold;
 
-    @PostConstruct
+    @EventListener(ContextRefreshedEvent.class)
+    @Order(Ordered.LOWEST_PRECEDENCE)
     public void initDefaultData() {
         log.info("기본 사용자 데이터 초기화 시작");
 

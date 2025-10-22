@@ -52,7 +52,8 @@ public class SmsController {
             CryptoFearIndexResponse fearIndexResponse = cryptoFearIndexService.getCryptoFearIndex();
             int currentIndex = Integer.parseInt(fearIndexResponse.getData().get(0).getValue());
             
-            SmsRequest smsRequest = SmsRequest.createSmsRequestWithIndex(currentIndex, "01099750327");
+            // 기본 사용자 정보로 SMS 테스트 (실제 운영에서는 인증된 사용자 사용)
+            SmsRequest smsRequest = SmsRequest.createSmsRequestWithIndex(currentIndex, "01000000000");
             smsService.sendSms(smsRequest);
             return ResponseEntity.ok("SMS test successful with index: " + currentIndex);
         } catch (Exception e) {

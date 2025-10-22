@@ -139,7 +139,8 @@ public class AlertController {
             CryptoFearIndexResponse fearIndexResponse = cryptoFearIndexService.getCryptoFearIndex();
             int currentIndex = Integer.parseInt(fearIndexResponse.getData().get(0).getValue());
             
-            SmsRequest smsRequest = SmsRequest.createSmsRequestWithIndex(currentIndex, "01099750327");
+            // 기본 사용자 정보로 SMS 테스트 (실제 운영에서는 인증된 사용자 사용)
+            SmsRequest smsRequest = SmsRequest.createSmsRequestWithIndex(currentIndex, "01000000000");
             smsService.sendSms(smsRequest);
             return ResponseEntity.ok("SMS test sent successfully with index: " + currentIndex);
         } catch (Exception e) {
@@ -240,7 +241,7 @@ public class AlertController {
         if (alertSetting.isEmail()) {
             log.info("이메일 발송 시도 중...");
             try {
-                EmailRequest emailRequest = emailService.createEmailRequest(alertSetting, user.getEmail());
+                EmailRequest emailRequest = emailService.createEmailRequest(alertSetting, user.getEmail(), triggeredIndex);
                 log.info("EmailRequest 생성됨: {} / {}", emailRequest.getToEmail(), emailRequest.getSubject());
                 emailService.sendEmail(emailRequest);
                 emailSent = true;

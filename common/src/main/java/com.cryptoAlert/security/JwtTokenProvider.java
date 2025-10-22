@@ -3,6 +3,7 @@ package com.cryptoAlert.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -14,7 +15,8 @@ public class JwtTokenProvider {
     private static final long ACCESS_TOKEN_VALIDITY = 1000L * 60 * 15; // 15분
     private static final long REFRESH_TOKEN_VALIDITY = 1000L * 60 * 60 * 24 * 7; // 7일
 
-    private String secretKey = "my-super-secret-key-my-super-secret-key"; // 최소 256bit
+    @Value("${jwt.secret}")
+    private String secretKey;
     private Key key;
 
     @PostConstruct

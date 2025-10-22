@@ -104,25 +104,25 @@ public class EmailService {
     }
 
     /**
-     * AlertSetting을 기반으로 EmailRequest 생성
+     * AlertSetting과 현재 인덱스를 기반으로 EmailRequest 생성
      */
-    public EmailRequest createEmailRequest(AlertSetting alertSetting, String email) {
-        log.debug("이메일 요청 생성 시작 - threshold: {}, email: {}", 
-                alertSetting.getThreshold(), email);
+    public EmailRequest createEmailRequest(AlertSetting alertSetting, String email, int currentIndex) {
+        log.debug("이메일 요청 생성 시작 - threshold: {}, currentIndex: {}, email: {}", 
+                alertSetting.getThreshold(), currentIndex, email);
         
-        String alertCategory = calculateAlertCategory(alertSetting.getThreshold());
+        String alertCategory = calculateAlertCategory(currentIndex);
         String subject = "[Crypto Alert] " + getEmailSubjectByAlertCategory(alertCategory);
-        String body = generateEmailBody(alertCategory, alertSetting, email);
+        String body = generateEmailBody(alertCategory, alertSetting, email, currentIndex);
         
         log.debug("이메일 요청 생성 완료 - 카테고리: {}, 제목: {}", alertCategory, subject);
         return new EmailRequest(email, subject, body);
     }
 
-    private String generateEmailBody(String category, AlertSetting setting, String email) {
+    private String generateEmailBody(String category, AlertSetting setting, String email, int currentIndex) {
         log.debug("이메일 본문 생성 시작 - 카테고리: {}, 템플릿: {}", 
                 category, getTemplateNameByAlertCategory(category));
         
-        Context context = createThymeleafContext(category, setting);
+        Context context = createThymeleafContext(category, setting, currentIndex);
         
         try {
             String templateName = getTemplateNameByAlertCategory(category);
@@ -133,13 +133,13 @@ public class EmailService {
             
         } catch (Exception e) {
             log.error("템플릿 처리 실패 - 카테고리: {}, 오류: {}", category, e.getMessage(), e);
-            return createFallbackEmailBody(setting, category);
+            return createFallbackEmailBody(setting, category, currentIndex);
         }
     }
     
-    private Context createThymeleafContext(String category, AlertSetting setting) {
+    private Context createThymeleafContext(String category, AlertSetting setting, int currentIndex) {
         Context context = new Context();
-        context.setVariable("index", setting.getThreshold());
+        context.setVariable("index", currentIndex);
         context.setVariable("classification", category);
         // 시간을 "2025-10-17 09:00" 형태로 포맷팅
         String formattedTime = setting.getUpdatedAt().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
@@ -147,30 +147,36 @@ public class EmailService {
         return context;
     }
     
-    private String createFallbackEmailBody(AlertSetting setting, String category) {
+    private String createFallbackEmailBody(AlertSetting setting, String category, int currentIndex) {
         return String.format("""
             <html>
             <body>
                 <h1>Crypto Alert</h1>
-                <p>Threshold: %d</p>
+                <p>Current Index: %d</p>
                 <p>Category: %s</p>
                 <p>Time: %s</p>
             </body>
             </html>
-            """, setting.getThreshold(), category, setting.getUpdatedAt());
+            """, currentIndex, category, setting.getUpdatedAt());
     }
+
+    // Fear & Greed Index 카테고리 임계값 상수
+    private static final int EXTREME_GREED_THRESHOLD = 75;
+    private static final int GREED_THRESHOLD = 55;
+    private static final int NEUTRAL_THRESHOLD = 45;
+    private static final int FEAR_THRESHOLD = 25;
 
     /**
      * Fear & Greed Index 값에 따른 알림 카테고리 계산
      */
     private String calculateAlertCategory(int threshold) {
-        if (threshold >= 75) {
+        if (threshold >= EXTREME_GREED_THRESHOLD) {
             return "Extreme Greed";
-        } else if (threshold >= 55) {
+        } else if (threshold >= GREED_THRESHOLD) {
             return "Greed";
-        } else if (threshold >= 45) {
+        } else if (threshold >= NEUTRAL_THRESHOLD) {
             return "Neutral";
-        } else if (threshold >= 25) {
+        } else if (threshold >= FEAR_THRESHOLD) {
             return "Fear";
         } else {
             return "Extreme Fear";

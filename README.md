@@ -25,6 +25,10 @@ export DEFAULT_USER_EMAIL="admin@example.com"
 export DEFAULT_USER_PHONE="01000000000"
 export DEFAULT_USERNAME="admin"
 export DEFAULT_PASSWORD="admin"
+
+# JWT 설정
+export JWT_SECRET="your-jwt-secret-key"
+export JWT_EXPIRATION="86400000"
 ```
 
 ### Gmail App Password 생성

@@ -19,6 +19,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-mail'  // Spring Boot 메일 스타터
 	implementation 'org.springframework.boot:spring-boot-starter-web'   // Web 기능
 	implementation 'org.springframework:spring-web'                     // RestTemplate을 위한 Web 의존성
+	
 
 	// Spring Security 핵심 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-security'

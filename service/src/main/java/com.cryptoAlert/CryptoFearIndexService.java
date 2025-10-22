@@ -15,28 +15,12 @@ public class CryptoFearIndexService {
     }
 
     public CryptoFearIndexResponse getCryptoFearIndex() {
-        // SSL 문제로 인해 테스트용으로 하드코딩된 값 사용
-        // 실제 운영 환경에서는 SSL 설정을 올바르게 구성해야 함
         try {
             String url = "https://api.alternative.me/fng/?limit=1";
             return restTemplate.getForObject(url, CryptoFearIndexResponse.class);
         } catch (Exception e) {
-            // SSL 오류 시 테스트용 하드코딩된 값 반환
-            System.out.println("SSL 오류로 인해 테스트용 값 사용: " + e.getMessage());
-            return createTestResponse();
+            // API 호출 실패 시 예외 발생
+            throw new RuntimeException("Fear & Greed Index API 호출 실패: " + e.getMessage(), e);
         }
-    }
-    
-    private CryptoFearIndexResponse createTestResponse() {
-        CryptoFearIndexResponse response = new CryptoFearIndexResponse();
-        response.setName("Fear & Greed Index");
-        
-        CryptoFearIndexResponse.CryptoFearData data = new CryptoFearIndexResponse.CryptoFearData();
-        data.setValue("22"); // 실제 값 (22 = Extreme Fear)
-        data.setValueClassification("Extreme Fear");
-        data.setTimestamp(String.valueOf(System.currentTimeMillis() / 1000));
-        
-        response.setData(java.util.List.of(data));
-        return response;
     }
 }
