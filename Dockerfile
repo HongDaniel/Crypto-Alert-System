@@ -45,9 +45,18 @@ COPY --from=builder /app/api/build/libs/*.jar app.jar
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
-ENV DATABASE_URL="jdbc:mysql://alert-system.cgqysgqck9ka.ap-northeast-2.rds.amazonaws.com:3306/crypto_alert?useSSL=true&serverTimezone=UTC"
-ENV DATABASE_USERNAME="admin"
-ENV DATABASE_PASSWORD="your-rds-password"
+
+# .env 파일 복사
+COPY .env .env
+
+# 환경변수 파일에서 읽어오기
+RUN echo "환경변수 파일 로드 중..." && \
+    if [ -f .env ]; then \
+        echo "✅ .env 파일 발견"; \
+        cat .env; \
+    else \
+        echo "⚠️ .env 파일이 없습니다"; \
+    fi
 
 # 포트 노출
 EXPOSE 8080
@@ -56,5 +65,17 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8080/api/alert/test-sms || exit 1
 
+# 환경변수 로드 스크립트 생성
+RUN echo '#!/bin/sh' > /app/load-env.sh && \
+    echo 'if [ -f .env ]; then' >> /app/load-env.sh && \
+    echo '  echo "환경변수 파일 로드 중..."' >> /app/load-env.sh && \
+    echo '  export $(cat .env | grep -v "^#" | xargs)' >> /app/load-env.sh && \
+    echo '  echo "환경변수 로드 완료"' >> /app/load-env.sh && \
+    echo 'else' >> /app/load-env.sh && \
+    echo '  echo "⚠️ .env 파일이 없습니다"' >> /app/load-env.sh && \
+    echo 'fi' >> /app/load-env.sh && \
+    echo 'exec java $JAVA_OPTS -jar app.jar' >> /app/load-env.sh && \
+    chmod +x /app/load-env.sh
+
 # 애플리케이션 실행
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["/app/load-env.sh"]

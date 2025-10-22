@@ -10,11 +10,8 @@ pipeline {
         EC2_KEY_PATH = '/var/lib/jenkins/.ssh/crypto-alert-key.pem'
         DEPLOY_PATH = '/home/ubuntu/crypto-alert-deploy'
         
-        // RDS 연결 설정
+        // 환경변수 파일에서 읽어오기
         SPRING_PROFILES_ACTIVE = 'prod'
-        DATABASE_URL = 'jdbc:mysql://alert-system.cgqysgqck9ka.ap-northeast-2.rds.amazonaws.com:3306/crypto_alert?useSSL=true&serverTimezone=UTC'
-        DATABASE_USERNAME = 'admin'
-        DATABASE_PASSWORD = 'your-rds-password'
     }
     
     stages {
@@ -22,6 +19,30 @@ pipeline {
             steps {
                 echo '📥 소스코드 체크아웃 중...'
                 checkout scm
+            }
+        }
+        
+        stage('Load Environment Variables') {
+            steps {
+                echo '🔧 환경변수 파일 로드 중...'
+                script {
+                    // .env 파일이 있는지 확인
+                    if (fileExists('.env')) {
+                        // .env 파일을 환경변수로 로드
+                        def envFile = readFile('.env')
+                        envFile.split('\n').each { line ->
+                            if (line.trim() && !line.startsWith('#')) {
+                                def parts = line.split('=', 2)
+                                if (parts.length == 2) {
+                                    env[parts[0].trim()] = parts[1].trim()
+                                }
+                            }
+                        }
+                        echo "환경변수 로드 완료: ${env.DATABASE_URL}"
+                    } else {
+                        echo "⚠️ .env 파일이 없습니다. 기본값을 사용합니다."
+                    }
+                }
             }
         }
         
