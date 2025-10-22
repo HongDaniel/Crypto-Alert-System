@@ -12,8 +12,8 @@ pipeline {
         
         // RDS 연결 설정
         SPRING_PROFILES_ACTIVE = 'prod'
-        DATABASE_URL = 'jdbc:mysql://your-rds-endpoint:3306/crypto_alert?useSSL=true&serverTimezone=UTC'
-        DATABASE_USERNAME = 'your-rds-username'
+        DATABASE_URL = 'jdbc:mysql://alert-system.cgqysgqck9ka.ap-northeast-2.rds.amazonaws.com:3306/crypto_alert?useSSL=true&serverTimezone=UTC'
+        DATABASE_USERNAME = 'admin'
         DATABASE_PASSWORD = 'your-rds-password'
     }
     

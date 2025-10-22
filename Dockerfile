@@ -45,8 +45,8 @@ COPY --from=builder /app/api/build/libs/*.jar app.jar
 # 환경 변수 설정
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
-ENV DATABASE_URL="jdbc:mysql://your-rds-endpoint:3306/crypto_alert?useSSL=true&serverTimezone=UTC"
-ENV DATABASE_USERNAME="your-rds-username"
+ENV DATABASE_URL="jdbc:mysql://alert-system.cgqysgqck9ka.ap-northeast-2.rds.amazonaws.com:3306/crypto_alert?useSSL=true&serverTimezone=UTC"
+ENV DATABASE_USERNAME="admin"
 ENV DATABASE_PASSWORD="your-rds-password"
 
 # 포트 노출
