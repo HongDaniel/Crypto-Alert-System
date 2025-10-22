@@ -69,7 +69,9 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 RUN echo '#!/bin/sh' > /app/load-env.sh && \
     echo 'if [ -f .env ]; then' >> /app/load-env.sh && \
     echo '  echo "환경변수 파일 로드 중..."' >> /app/load-env.sh && \
-    echo '  export $(cat .env | grep -v "^#" | xargs)' >> /app/load-env.sh && \
+    echo '  set -a' >> /app/load-env.sh && \
+    echo '  . ./.env' >> /app/load-env.sh && \
+    echo '  set +a' >> /app/load-env.sh && \
     echo '  echo "환경변수 로드 완료"' >> /app/load-env.sh && \
     echo 'else' >> /app/load-env.sh && \
     echo '  echo "⚠️ .env 파일이 없습니다"' >> /app/load-env.sh && \

@@ -26,21 +26,20 @@ pipeline {
             steps {
                 echo '🔧 환경변수 파일 로드 중...'
                 script {
+                    // 현재 작업 디렉토리 확인
+                    echo "현재 작업 디렉토리: ${pwd()}"
+                    
                     // .env 파일이 있는지 확인
                     if (fileExists('.env')) {
-                        // .env 파일을 환경변수로 로드
+                        echo "✅ .env 파일 발견: ${pwd()}/.env"
+                        // .env 파일 내용 출력
                         def envFile = readFile('.env')
-                        envFile.split('\n').each { line ->
-                            if (line.trim() && !line.startsWith('#')) {
-                                def parts = line.split('=', 2)
-                                if (parts.length == 2) {
-                                    env[parts[0].trim()] = parts[1].trim()
-                                }
-                            }
-                        }
-                        echo "환경변수 로드 완료: ${env.DATABASE_URL}"
+                        echo "환경변수 파일 내용:"
+                        echo envFile
+                        echo "✅ .env 파일 로드 완료"
                     } else {
-                        echo "⚠️ .env 파일이 없습니다. 기본값을 사용합니다."
+                        echo "⚠️ .env 파일이 없습니다: ${pwd()}/.env"
+                        echo "Jenkins 워크스페이스에 .env 파일을 복사해주세요."
                     }
                 }
             }
