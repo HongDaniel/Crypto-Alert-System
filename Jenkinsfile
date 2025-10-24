@@ -3,12 +3,15 @@ pipeline {
     
     environment {
         // 환경 변수 설정
+        AWS_REGION = 'ap-northeast-2'
+        ECR_REGISTRY = 'your-account-id.dkr.ecr.ap-northeast-2.amazonaws.com'
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
-        EC2_HOST = 'your-ec2-ip'
-        EC2_USER = 'ubuntu'
-        EC2_KEY_PATH = '/var/lib/jenkins/.ssh/crypto-alert-key.pem'
-        DEPLOY_PATH = '/home/ubuntu/crypto-alert-deploy'
+        
+        // EC2 설정 (하드코딩으로 임시 설정)
+        EC2_HOST = '172.30.1.39'
+        EC2_USER = 'ec2-user'
+        DEPLOY_PATH = '/home/ec2-user/crypto-alert-deploy'
         
         // 환경변수 파일에서 읽어오기
         SPRING_PROFILES_ACTIVE = 'prod'
@@ -36,6 +39,23 @@ pipeline {
                         def envFile = readFile('.env')
                         echo "환경변수 파일 내용:"
                         echo envFile
+                        
+                        // EC2 설정을 환경변수로 설정
+                        envFile.split('\n').each { line ->
+                            if (line.trim() && !line.startsWith('#')) {
+                                def parts = line.split('=', 2)
+                                if (parts.length == 2) {
+                                    def key = parts[0].trim()
+                                    def value = parts[1].trim()
+                                    
+                                    // EC2 관련 설정만 환경변수로 설정
+                                    if (key.startsWith('EC2_') || key.startsWith('DEPLOY_')) {
+                                        env[key] = value
+                                        echo "환경변수 설정: ${key} = ${value}"
+                                    }
+                                }
+                            }
+                        }
                         echo "✅ .env 파일 로드 완료"
                     } else {
                         echo "⚠️ .env 파일이 없습니다: ${pwd()}/.env"
@@ -62,17 +82,29 @@ pipeline {
             }
         }
         
-        stage('Docker Build') {
+        stage('Docker Build & Push to ECR') {
             steps {
-                echo '🐳 Docker 이미지 빌드 중...'
+                echo '🐳 Docker 이미지 빌드 및 ECR 푸시 중...'
                 script {
-                    // Dockerfile이 있는지 확인
-                    if (fileExists('Dockerfile')) {
-                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest"
-                    } else {
-                        echo '⚠️ Dockerfile이 없습니다. JAR 파일 직접 배포를 진행합니다.'
-                    }
+                    // AWS CLI 설치 확인
+                    sh 'aws --version || echo "AWS CLI not found"'
+                    
+                    // ECR 로그인
+                    sh """
+                        aws ecr get-login-password --region ${AWS_REGION} | \
+                        docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    """
+                    
+                    // Docker 이미지 빌드
+                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
+                    
+                    // ECR에 푸시
+                    sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                    sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
+                    
+                    echo "✅ Docker 이미지가 ECR에 성공적으로 푸시되었습니다."
                 }
             }
         }
@@ -81,29 +113,33 @@ pipeline {
             steps {
                 echo '🚀 EC2에 배포 중...'
                 script {
-                    // EC2에 배포 디렉토리 생성
-                    sh """
-                        ssh -i ${EC2_KEY_PATH} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
-                        'mkdir -p ${DEPLOY_PATH}'
-                    """
-                    
-                    // JAR 파일 복사
-                    sh """
-                        scp -i ${EC2_KEY_PATH} -o StrictHostKeyChecking=no \
-                        api/build/libs/*.jar ${EC2_USER}@${EC2_HOST}:${DEPLOY_PATH}/
-                    """
-                    
-                    // 설정 파일들 복사
-                    sh """
-                        scp -i ${EC2_KEY_PATH} -o StrictHostKeyChecking=no \
-                        .env ${EC2_USER}@${EC2_HOST}:${DEPLOY_PATH}/
-                    """
-                    
-                    // 배포 스크립트 실행
-                    sh """
-                        ssh -i ${EC2_KEY_PATH} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
-                        'cd ${DEPLOY_PATH} && chmod +x deploy.sh && ./deploy.sh'
-                    """
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                        // EC2에서 기존 컨테이너 중지 및 제거
+                        sh """
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+                            'cd ${DEPLOY_PATH} && docker-compose down || true'
+                        """
+                        
+                        // EC2에서 ECR 로그인
+                        sh """
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+                            'aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                        """
+                        
+                        // EC2에서 최신 이미지 Pull
+                        sh """
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+                            'cd ${DEPLOY_PATH} && docker pull ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest'
+                        """
+                        
+                        // EC2에서 Docker Compose로 서비스 시작
+                        sh """
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+                            'cd ${DEPLOY_PATH} && docker-compose up -d'
+                        """
+                        
+                        echo "✅ EC2 배포가 완료되었습니다."
+                    }
                 }
             }
         }
