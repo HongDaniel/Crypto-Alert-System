@@ -125,9 +125,9 @@ pipeline {
                         
                         // Jenkins에서 ECR 로그인 후 토큰을 EC2로 전송
                         sh """
-                            ECR_TOKEN=$(aws ecr get-login-password --region ${AWS_REGION})
+                            ECR_TOKEN=\$(aws ecr get-login-password --region ${AWS_REGION})
                             ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
-                            "echo '${ECR_TOKEN}' | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+                            "echo '\${ECR_TOKEN}' | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                         """
                         
                         // EC2에서 최신 이미지 Pull
