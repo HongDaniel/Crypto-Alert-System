@@ -46,8 +46,8 @@ COPY --from=builder /app/api/build/libs/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
 
-# .env 파일 복사
-COPY .env .env
+# .env 파일 복사 (있는 경우에만)
+COPY .env* ./
 
 # 환경변수 파일에서 읽어오기
 RUN echo "환경변수 파일 로드 중..." && \
