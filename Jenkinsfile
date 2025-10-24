@@ -8,6 +8,7 @@ pipeline {
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         
+        
         // EC2 설정 (하드코딩으로 임시 설정)
         EC2_HOST = '172.30.1.39'
         EC2_USER = 'ec2-user'
@@ -86,7 +87,7 @@ pipeline {
             steps {
                 echo '🐳 Docker 이미지 빌드 및 ECR 푸시 중...'
                 script {
-                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                    withCredentials([usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
                         // AWS CLI 설치 확인
                         sh 'aws --version || echo "AWS CLI not found"'
                         
