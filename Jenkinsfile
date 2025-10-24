@@ -127,6 +127,12 @@ pipeline {
                             'cd ${DEPLOY_PATH} && docker-compose down || true'
                         """
                         
+                        // EC2에서 최신 코드 가져오기
+                        sh """
+                            ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
+                            'cd ${DEPLOY_PATH} && git pull origin main || git clone https://github.com/HongDaniel/Crypto-Alert-System.git .'
+                        """
+                        
                         // Jenkins에서 ECR 로그인 후 토큰을 EC2로 전송
                         sh """
                             ECR_TOKEN=\$(aws ecr get-login-password --region ${AWS_REGION})

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   crypto-alert-app:
-    build: .
+    image: 628856589662.dkr.ecr.ap-northeast-2.amazonaws.com/alert-system:latest
     container_name: crypto-alert-app
     ports:
       - "8080:8080"
