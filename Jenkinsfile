@@ -4,7 +4,7 @@ pipeline {
     environment {
         // 환경 변수 설정
         AWS_REGION = 'ap-northeast-2'
-        ECR_REGISTRY = 'your-account-id.dkr.ecr.ap-northeast-2.amazonaws.com'
+        ECR_REGISTRY = 'YOUR_ACCOUNT_ID.dkr.ecr.ap-northeast-2.amazonaws.com'
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         
@@ -86,25 +86,27 @@ pipeline {
             steps {
                 echo '🐳 Docker 이미지 빌드 및 ECR 푸시 중...'
                 script {
-                    // AWS CLI 설치 확인
-                    sh 'aws --version || echo "AWS CLI not found"'
-                    
-                    // ECR 로그인
-                    sh """
-                        aws ecr get-login-password --region ${AWS_REGION} | \
-                        docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                    """
-                    
-                    // Docker 이미지 빌드
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
-                    
-                    // ECR에 푸시
-                    sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
-                    
-                    echo "✅ Docker 이미지가 ECR에 성공적으로 푸시되었습니다."
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+                        // AWS CLI 설치 확인
+                        sh 'aws --version || echo "AWS CLI not found"'
+                        
+                        // ECR 로그인
+                        sh """
+                            aws ecr get-login-password --region ${AWS_REGION} | \
+                            docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                        """
+                        
+                        // Docker 이미지 빌드
+                        sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
+                        
+                        // ECR에 푸시
+                        sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:${DOCKER_TAG}"
+                        sh "docker push ${ECR_REGISTRY}/${DOCKER_IMAGE}:latest"
+                        
+                        echo "✅ Docker 이미지가 ECR에 성공적으로 푸시되었습니다."
+                    }
                 }
             }
         }
