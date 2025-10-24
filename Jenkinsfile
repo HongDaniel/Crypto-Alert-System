@@ -4,7 +4,7 @@ pipeline {
     environment {
         // 환경 변수 설정
         AWS_REGION = 'ap-northeast-2'
-        ECR_REGISTRY = '628856589662.dkr.ecr.ap-northeast-2.amazonaws.com'
+        ECR_REGISTRY = '628856589662.dkr.ecr.ap-northeast-2.amazonaws.com/alert-system'
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         
@@ -99,12 +99,12 @@ pipeline {
                         
                         // Docker 이미지 빌드
                         sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
-                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/alert-system:${DOCKER_TAG}"
-                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}/alert-system:latest"
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}:${DOCKER_TAG}"
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${ECR_REGISTRY}:latest"
                         
                         // ECR에 푸시
-                        sh "docker push ${ECR_REGISTRY}/alert-system:${DOCKER_TAG}"
-                        sh "docker push ${ECR_REGISTRY}/alert-system:latest"
+                        sh "docker push ${ECR_REGISTRY}:${DOCKER_TAG}"
+                        sh "docker push ${ECR_REGISTRY}:latest"
                         
                         echo "✅ Docker 이미지가 ECR에 성공적으로 푸시되었습니다."
                     }
