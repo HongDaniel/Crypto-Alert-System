@@ -8,9 +8,6 @@ pipeline {
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         
-        // AWS Credentials (임시로 하드코딩 - 보안상 권장하지 않음)
-        AWS_ACCESS_KEY_ID = 'YOUR_ACCESS_KEY_ID'
-        AWS_SECRET_ACCESS_KEY = 'YOUR_SECRET_ACCESS_KEY'
         
         
         // EC2 설정 (하드코딩으로 임시 설정)
@@ -120,7 +117,10 @@ pipeline {
             steps {
                 echo '🚀 EC2에 배포 중...'
                 script {
-                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
+                    withCredentials([
+                        sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY'),
+                        usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
                         // EC2에서 기존 컨테이너 중지 및 제거
                         sh """
                             ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
@@ -129,7 +129,7 @@ pipeline {
                         
                         // Jenkins에서 ECR 로그인 후 토큰을 EC2로 전송
                         sh """
-                            ECR_TOKEN=\$(AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} aws ecr get-login-password --region ${AWS_REGION})
+                            ECR_TOKEN=\$(aws ecr get-login-password --region ${AWS_REGION})
                             ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} \
                             "echo '\${ECR_TOKEN}' | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
                         """
