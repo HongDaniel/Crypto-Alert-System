@@ -4,7 +4,7 @@ pipeline {
     environment {
         // 환경 변수 설정
         AWS_REGION = 'ap-northeast-2'
-        ECR_REGISTRY = 'YOUR_ACCOUNT_ID.dkr.ecr.ap-northeast-2.amazonaws.com'
+        ECR_REGISTRY = '628856589662.dkr.ecr.ap-northeast-2.amazonaws.com/alert-system'
         DOCKER_IMAGE = 'crypto-alert-app'
         DOCKER_TAG = "${BUILD_NUMBER}"
         
